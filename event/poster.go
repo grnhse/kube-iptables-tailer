@@ -112,7 +112,9 @@ func (poster *Poster) handle(packetDrop drop.PacketDrop) error {
 			return err
 		}
 	}
-	metrics.GetInstance().ProcessPacketDrop(srcName, dstName)
+	metrics_instance := metrics.GetInstance()
+	metrics_instance.ProcessPacketDrop(getNamespaceOnly(srcPod), "egress")
+	metrics_instance.ProcessPacketDrop(getNamespaceOnly(dstPod), "ingress")
 	// update poster's eventSubmitTimeMap
 	poster.eventSubmitTimeMap[packetDrop.SrcIP+packetDrop.DstIP] = time.Now()
 	return nil

@@ -62,6 +62,42 @@ func TestGetServiceNameFromIP(t *testing.T) {
 	}
 }
 
+// Test if getNamespaceOnly() works
+func TestGetNamespaceFromPod(t *testing.T) {
+	// test for pod not using hostNetworking
+	expected := "test-namespace"
+	pod := &v1.Pod{}
+	pod.Namespace = expected
+	pod.Spec.HostNetwork = false
+	result := getNamespaceOnly(pod)
+	if result != expected {
+		t.Fatalf("Expected: %v, but got result: %v", expected, result)
+	}
+
+	// test for pod using hostNetworking but without spec.NodeName
+	expected = "external"
+	pod.Spec.HostNetwork = true
+	result = getNamespaceOnly(pod)
+	if result != expected {
+		t.Fatalf("Expected: %v, but got result: %v", expected, result)
+	}
+
+	// test for pod using hostNetworking but with spec.NodeName
+	expected = "hostNetwork"
+	pod.Spec.NodeName = "test-host-name"
+	result = getNamespaceOnly(pod)
+	if result != expected {
+		t.Fatalf("Expected: %v, but got result: %v", expected, result)
+	}
+
+	// test for empty pod
+	expected = "external"
+	result = getNamespaceOnly(nil)
+	if result != expected {
+		t.Fatalf("Expected: %v, but got result: %v", expected, result)
+	}
+}
+
 // Test if getPacketDropMessage() works for pods
 func TestGetPacketDropMessageForPods(t *testing.T) {
 	namespace := "pod-name-test"

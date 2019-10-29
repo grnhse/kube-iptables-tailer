@@ -152,6 +152,23 @@ func getNamespaceOrHostName(pod *v1.Pod, ip string, resolver DnsResolver) string
 	return getHostName(resolver, ip)
 }
 
+/*
+ * 1. If a pod is not using host networking, return its namespace name.
+ * 2. If a pod is using host networking, return "hostNetwork".
+ * 3. If no pod is found, return "external".
+ */
+func getNamespaceOnly(pod *v1.Pod) string {
+	if pod != nil {
+		if !pod.Spec.HostNetwork {
+			return pod.Namespace
+		}
+		if pod.Spec.NodeName != "" {
+			return "hostNetwork"
+		}
+	}
+	return "external"
+}
+
 // Helper function to construct packet drop message
 func getPacketDropMessage(otherSideServiceName string, ip string, direction TrafficDirection) string {
 	var buffer bytes.Buffer

@@ -1,0 +1,17 @@
+ARG UBUNTU_VER=bionic-20190912.1
+
+FROM ubuntu:${UBUNTU_VER}
+
+ENV GOPATH /root/go
+RUN apt-get update \
+  && apt-get install -y \
+    curl \
+    git \
+    golang \
+    go-dep \
+    libsystemd-dev
+
+WORKDIR ${GOPATH}/src/github.com/box/kube-iptables-tailer
+ADD . .
+
+CMD ["/bin/bash"]
