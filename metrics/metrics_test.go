@@ -9,8 +9,8 @@ import (
 )
 
 type TestCase struct {
-	src string
-	dst string
+	namespace string
+	direction string
 }
 
 // Test if Metrics can process packetDropsCount with its namespace, other side's service name, and traffic direction
@@ -20,17 +20,25 @@ func TestMetricsProcessPacketDrops(t *testing.T) {
 	// construct test case with namespace "test-namespace-i" and count i
 	// for trafficDirection, set it "SEND" if i is even, "RECEIVE" if i is odd
 	for i := 1; i <= 5; i++ {
-		testCase := TestCase{
-			src: fmt.Sprintf("test-namespace-%v", i),
-			dst: fmt.Sprintf("other-side-service-name-%v", i),
-		}
+	    var testCase TestCase
+	    if i % 2 == 0 {
+            testCase = TestCase{
+                namespace: fmt.Sprintf("test-namespace-%v", i),
+                direction: "egress",
+            }
+        } else {
+            testCase = TestCase{
+                namespace: fmt.Sprintf("test-namespace-%v", i),
+                direction: "ingress",
+            }
+        }
 		testCaseMap[testCase] = i
 	}
 	// simulate the process of Metrics updating packetDropsCount
 	// trafficDirection is simulated as sending when namespace has odd number and receiving when it has even number
 	for testCase := range testCaseMap {
 		for i := 0; i < testCaseMap[testCase]; i++ {
-			GetInstance().ProcessPacketDrop(testCase.src, testCase.dst)
+			GetInstance().ProcessPacketDrop(testCase.namespace, testCase.direction)
 		}
 	}
 	// check the actual metrics raw data with expected string
@@ -47,7 +55,7 @@ func TestMetricsProcessPacketDrops(t *testing.T) {
 // Helper function to get string showing in metrics of given test case and its count
 func getPacketDropsCountMetricsString(testCase TestCase, count int) string {
 	// tags must be in alphabetical order
-	return fmt.Sprintf("packet_drops_count{dst=\"%s\",src=\"%s\"} %v", testCase.dst, testCase.src, count)
+	return fmt.Sprintf("packet_drops_count{direction=\"%s\",namespace=\"%s\"} %v", testCase.direction, testCase.namespace, count)
 }
 
 // Helper function to request content body from the handler.
