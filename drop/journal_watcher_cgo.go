@@ -4,6 +4,7 @@ package drop
 
 import (
 	"fmt"
+	"github.com/box/kube-iptables-tailer/util"
 	"github.com/coreos/go-systemd/sdjournal"
 	"go.uber.org/zap"
 	"strings"
@@ -43,7 +44,7 @@ func (watcher *JournalWatcher) Run(logChangeCh chan<- string) {
 
 			return strings.Join([]string{
 				time.Unix(0, int64(entry.RealtimeTimestamp)*int64(time.Microsecond)).
-					Format(DefaultPacketDropLogTimeLayout),
+					Format(util.DefaultPacketDropLogTimeLayout),
 				hostname,
 				msg,
 			}, " ") + "\n", nil
