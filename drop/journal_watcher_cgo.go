@@ -27,10 +27,7 @@ func (watcher *JournalWatcher) Run(logChangeCh chan<- string) {
 	reader, err := sdjournal.NewJournalReader(sdjournal.JournalReaderConfig{
 		Path:        watcher.journalDir,
 		NumFromTail: 1,
-		Matches: []sdjournal.Match{{
-			Field: "SYSLOG_IDENTIFIER",
-			Value: "kernel",
-		}},
+		Matches:     []sdjournal.Match{},
 		Formatter: func(entry *sdjournal.JournalEntry) (s string, e error) {
 			msg, ok := entry.Fields["MESSAGE"]
 			if !ok {
