@@ -34,11 +34,13 @@ func (watcher *JournalWatcher) Run(logChangeCh chan<- string) {
 		Formatter: func(entry *sdjournal.JournalEntry) (s string, e error) {
 			msg, ok := entry.Fields["MESSAGE"]
 			if !ok {
+				zap.L().Debug("no MESSAGE field present in journal entry")
 				return "", fmt.Errorf("no MESSAGE field present in journal entry")
 			}
 
 			hostname, ok := entry.Fields["_HOSTNAME"]
 			if !ok {
+				zap.L().Debug("no _HOSTNAME field present in journal entry")
 				return "", fmt.Errorf("no _HOSTNAME field present in journal entry")
 			}
 
@@ -64,6 +66,7 @@ type lineWriter struct {
 }
 
 func (lw *lineWriter) Write(buf []byte) (n int, err error) {
+	zap.L().Debug("Adding change to channel", zap.ByteString("raw", buf))
 	lw.logChangeCh <- string(buf)
 	return len(buf), nil
 }

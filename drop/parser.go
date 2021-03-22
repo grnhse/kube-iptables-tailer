@@ -86,6 +86,7 @@ func RunParsing(logPrefix string, logChangeCh <-chan string, packetDropCh chan<-
 func parse(logPrefix, log string, packetDropCh chan<- PacketDrop, logTimeLayout string) error {
 	// only parse the required packet drop logs
 	if !isRequiredPacketDropLog(logPrefix, log) {
+		zap.L().Debug("Skipping packet", zap.String("raw", log))
 		return nil
 	}
 	zap.L().Debug("Parsing new packet", zap.String("raw", log))
